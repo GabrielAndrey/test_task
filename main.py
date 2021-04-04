@@ -1,9 +1,16 @@
+#!/usr/bin/python
+# -*- coding: <utf-8> -*-
+
 import os
 import sys
 import hashlib
 
 def hash_check(src : str, hash_func : str, benchmark : str) -> str:
-    """Checks if hash of the file is correct"""
+    """Checks if hash of the file is correct and print result
+
+    src       - source file to check
+    hash_func - hash algorythm
+    benchmark - correct hash"""
     if os.path.isfile(src):
         try:
             with open(src, 'rb') as file:
@@ -17,12 +24,17 @@ def hash_check(src : str, hash_func : str, benchmark : str) -> str:
                     return "FAIL"
         except FileNotFoundError:
             return "NOT FOUND"
+        except PermissionError:
+            return "NOT FOUND"
 
     else:
         return "NOT FOUND"
 
 def main_processing(input_file_path : str, data_dir_path : str):
-    """Parses input and calls hash checks."""
+    """Parses input and calls hash checks.
+
+    input_file_path - pat to the input file
+    data_dir_path   - path to the directory containing the files to check"""
 
     expected_hash_functions = ('md5', 'sha1', 'sha256')
 
@@ -36,7 +48,7 @@ def main_processing(input_file_path : str, data_dir_path : str):
                 for line in input_file:
                     input_arguments = list(filter(None, line.strip().split()))
                     if len(input_arguments) != 3:
-                        print("Bad parameters")
+                        print("Bad parameters.")
                         continue
                     if not input_arguments[1] in expected_hash_functions:
                         print(f"{input_arguments[0]} Bad parameters, hash function is not supported.")
@@ -48,15 +60,18 @@ def main_processing(input_file_path : str, data_dir_path : str):
             print(f"Input file {FileNotFoundError.filename} access"
                   "error. Check path.\n")
             return
+        except PermissionError:
+            print(f"Input file {PermissionError.filename} access"
+                  "error. Check user access rights.\n")
+            return
+            
     else:
-        print(f"Input file {mainfile} access error. Check path.\n")
+        print(f"Input file {input_file_path} access error. Check path.\n")
 
 if __name__ == "__main__":
-    if (sys.argv[0] == ''):
+    if (sys.argv[0] == '') or (len(sys.argv) < 3):
         print("Bad parameters passed to the program.\n")
     else:
         input_file = sys.argv[1]
         input_dir  = sys.argv[2]
-        #input_file = r'E:\GitHub\test_task\input_file.txt'
-        #input_dir  = r'E:\GitHub\test_task'
         main_processing(input_file, input_dir)
